@@ -1,2 +1,6 @@
 *.pyc
 site
+.DS_Store
+
+/.envrc
+repos/*
