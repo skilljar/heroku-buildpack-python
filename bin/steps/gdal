@@ -31,4 +31,3 @@ if (pip-grep -s requirements.txt GDAL gdal pygdal &> /dev/null) then
   GDAL=$(pwd)/vendor
   export GDAL
 fi
-

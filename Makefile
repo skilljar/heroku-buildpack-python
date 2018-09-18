@@ -1,7 +1,7 @@
 # These targets are not files
 .PHONY: tests
 
-test: test-heroku-16
+test: test-cedar-14
 
 check:
 	@shellcheck -x bin/compile bin/detect bin/release bin/test-compile bin/utils bin/warnings
@@ -35,8 +35,3 @@ buildenv-heroku-16:
 	@echo "  $$ bob deploy runtimes/python-2.7.13"
 	@echo
 	@docker run -it --rm python-buildenv-heroku-16
-
-tools:
-	git clone https://github.com/kennethreitz/pip-pop.git
-	mv pip-pop/bin/* vendor/pip-pop/
-	rm -fr pip-pop
