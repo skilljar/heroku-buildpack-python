@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+source "$BIN_DIR/utils"
+set -e
+
+if [[ -f poetry.lock ]]; then
+    if [[ -f .heroku/python/poetry.lock.sha256 ]]; then
+        if [[ $(openssl dgst -sha256 poetry.lock) == $(cat .heroku/python/poetry.lock.sha256) ]]; then
+            # Don't skip installation if there are git deps.
+            if ! grep -q 'git' poetry.lock; then
+                echo "Skipping installation, as poetry.lock hasn't changed since last deploy." | indent
+
+                mcount "tool.poetry"
+                export SKIP_POETRY_INSTALL=1
+                export SKIP_PIP_INSTALL=1
+            fi
+        fi
+    fi
+fi
+
+
+if [ ! "$SKIP_POETRY_INSTALL" ]; then
+    # Install requirements with Poetry.
+    if [[ -f poetry.lock ]]; then
+        # Record that we're using Poetry.
+        mcount "tool.poetry"
+
+        # Skip pip install.
+        export SKIP_PIP_INSTALL=1
+
+        # Install Poetry.
+        export POETRY_VERSION="1.1.4"
+        /app/.heroku/python/bin/pip install poetry==$POETRY_VERSION &> /dev/null
+
+        # Install the test dependencies, for CI.
+        if [ "$INSTALL_TEST" ]; then
+            puts-step "Installing dependencies (including test dependencies) with Poetry $POETRY_VERSION"
+            /app/.heroku/python/bin/poetry install --no-root 2>&1 | cleanup | indent
+
+        # Install the dependencies.
+        else
+            puts-step "Installing dependencies with Poetry $POETRY_VERSION"
+            /app/.heroku/python/bin/poetry install --no-root --no-dev 2>&1 | indent
+        fi
+
+        openssl dgst -sha256 poetry.lock > .heroku/python/poetry.lock.sha256
+    fi
+fi
