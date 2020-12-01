@@ -32,6 +32,9 @@ if [ ! "$SKIP_POETRY_INSTALL" ]; then
         export POETRY_VERSION="1.1.4"
         /app/.heroku/python/bin/pip install poetry==$POETRY_VERSION &> /dev/null
 
+        # Configure Poetry to install dependencies in the existing virtual environment
+        /app/.heroku/python/bin/poetry config virtualenvs.create false &> /dev/null
+
         # Install the test dependencies, for CI.
         if [ "$INSTALL_TEST" ]; then
             puts-step "Installing dependencies (including test dependencies) with Poetry $POETRY_VERSION"
