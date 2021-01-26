@@ -35,6 +35,10 @@ if [ ! "$SKIP_POETRY_INSTALL" ]; then
         # Configure Poetry to install dependencies in the existing virtual environment
         /app/.heroku/python/bin/poetry config virtualenvs.create false &> /dev/null
 
+        # Disable experimental installer to prevent incorrectly nested style tag errors
+        # https://github.com/python-poetry/poetry/issues/3010
+        /app/.heroku/python/bin/poetry config experimental.new-installer false &> /dev/null
+
         # Install the test dependencies, for CI.
         if [ "$INSTALL_TEST" ]; then
             puts-step "Installing dependencies (including test dependencies) with Poetry $POETRY_VERSION"
